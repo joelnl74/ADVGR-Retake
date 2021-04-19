@@ -54,11 +54,6 @@ float3 Game::SampleNEEShaded( Ray& ray )
 
 	for (int depth = 0; depth < m_maxDepth; depth++)
 	{
-		if (depth == m_maxDepth - 1)
-		{
-			printf("Max depth reached");
-		}
-
 		// find nearest ray/scene intersection
 		if (scene.Intersect( ray ) == -1) 
 		{ 
@@ -131,6 +126,8 @@ float3 Game::SampleNEEShaded( Ray& ray )
 // -----------------------------------------------------------
 void Game::Tick( float deltaTime )
 {
+	std::vector<int> frameSample;
+
 	// iterate over the pixels on the screen
 	const float focalPlane = -1.7f;
 	for (int y = 0; y < SCRHEIGHT; y++) for (int x = 0; x < SCRWIDTH; x++)
@@ -145,12 +142,29 @@ void Game::Tick( float deltaTime )
 	// visualize the accumulator
 	samplesTaken++;
 	float scale = 1.0f / samplesTaken;
+	
 	for (int y = 0; y < SCRHEIGHT; y++) for (int x = 0; x < SCRWIDTH; x++)
 	{
 		float3 p = accumulator[x + y * SCRWIDTH] * scale;
 		int r = (int)(sqrtf( min( 1.0f, p.x ) ) * 255.0f);
 		int g = (int)(sqrtf( min( 1.0f, p.y ) ) * 255.0f);
 		int b = (int)(sqrtf( min( 1.0f, p.z ) ) * 255.0f);
+
+		frameSample.push_back(r + g + b);
+
 		screen->Plot( x, y, (r << 16) + (g << 8) + b );
 	}
+
+	if (samplesTaken < 1025)
+	{
+		float rmsevalue = Utils::rmsValue(frameSample, Utils::GetGroundTruth());
+		rmsevalue = Utils::RoundFloat(rmsevalue);
+
+		rmsValues.push_back(rmsevalue);
+	}
+	if (samplesTaken == 1025)
+	{
+		Utils::SaveToFile("base.txt", rmsValues);
+	}
+
 }

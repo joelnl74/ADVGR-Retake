@@ -1,5 +1,5 @@
 #pragma once
-
+#include "Utils.h"
 namespace Tmpl8 {
 
 class Game
@@ -7,7 +7,7 @@ class Game
 public:
 	float3 SampleNEEShaded( Ray& ray );
 	void SetTarget( Surface* surface ) { screen = surface; }
-	void Init() { memset( accumulator, 0, SCRWIDTH * SCRHEIGHT * 3 ); }
+	void Init() { memset(accumulator, 0, SCRWIDTH * SCRHEIGHT * 3);  }
 	void Shutdown() {}
 	void Tick( float deltaTime );
 	void MouseUp( int button ) { /* implement if you want to detect mouse button presses */ }
@@ -22,6 +22,7 @@ public:
 
 private:
 	const int m_maxDepth = 20;
+	std::vector<float> rmsValues;
 };
 
 }; // namespace Tmpl8

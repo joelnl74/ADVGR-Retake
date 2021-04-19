@@ -2,8 +2,11 @@
 #include <math.h>
 #include <iostream>
 #include <fstream>
+#include <vector>
 
 namespace Tmpl8 {
+
+    static std::vector<int> m_GroundTruth;
 
 	class Utils {
     public:
@@ -39,6 +42,16 @@ namespace Tmpl8 {
             return rmse;
         }
 
+        static std::vector<int> GetGroundTruth()
+        {
+            if (m_GroundTruth.size() == 0)
+            {
+                m_GroundTruth = LoadFromFile("GroundTruth.txt");
+            }
+
+            return m_GroundTruth;
+        }
+
         static void SaveToFile(const std::string& filePath, std::vector<int> values)
         {
             ofstream myfile;
@@ -51,6 +64,28 @@ namespace Tmpl8 {
             }
 
             myfile.close();
+        }
+
+        static void SaveToFile(const std::string& filePath, std::vector<float> values)
+        {
+            ofstream myfile;
+
+            myfile.open(filePath);
+
+            for (auto value : values)
+            {
+                myfile << value << "\n";
+            }
+
+            myfile.close();
+        }
+
+
+        static float RoundFloat(float var)
+        {
+            float value = (int)(var * 100 + .5);
+         
+            return (float)value / 100;
         }
 
         static std::vector<int> LoadFromFile(const std::string& filePath)
