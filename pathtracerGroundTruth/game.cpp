@@ -122,7 +122,12 @@ float3 Game::SampleNEEShaded( Ray& ray )
 			// sample random direction on hemisphere
 			float hemiPDF = 0;
 			float3 BRDF = SampleLambert(material.diffuse, ray.N, R, hemiPDF);
-			if (BRDF.x == 0 && BRDF.y == 0 && BRDF.z == 0) break;
+			
+			if (BRDF.x == 0 && BRDF.y == 0 && BRDF.z == 0)
+			{
+				break;
+			}
+
 			T *= (dot(R, ray.N) / hemiPDF) * BRDF;
 			ray = Ray(I + R * EPSILON, R);
 			lastSpecular = false;
