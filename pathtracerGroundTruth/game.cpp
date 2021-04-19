@@ -115,7 +115,7 @@ float3 Game::SampleNEEShaded( Ray& ray )
 				float3 sampledBRDF = material.diffuse * INVPI;
 				float solidAngle = (cos_o * Scene::LIGHTAREA) / (dist * dist);
 
-				E += sampledBRDF * 1 * Scene::lightColor * solidAngle * cos_i;
+				E += T * sampledBRDF * 1 * Scene::lightColor * solidAngle * cos_i;
 			}
 			else
 			{
@@ -129,7 +129,7 @@ float3 Game::SampleNEEShaded( Ray& ray )
 				break;
 			}
 
-			E *= 1 / p;
+			T *= 1 / p;
 		}
 	}
 
