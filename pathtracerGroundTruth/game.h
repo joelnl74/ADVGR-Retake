@@ -23,6 +23,7 @@ public:
 
 private:
 	const int m_maxDepth = 20;
+	const bool m_NEE = false;
 };
 
 }; // namespace Tmpl8

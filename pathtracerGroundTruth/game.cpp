@@ -98,15 +98,39 @@ float3 Game::SampleNEEShaded( Ray& ray )
 			float3 L = scene.RandomPointOnLight() - I;
 			float dist = length(L);
 			L = normalize(L);
-			float NdotL = dot(ray.N, L);
-			if (NdotL > 0)
+
+			if (m_NEE)
 			{
+				float NdotL = dot(ray.N, L);
+				if (NdotL > 0)
+				{
+					Ray r(I + L * EPSILON, L, dist - 2 * EPSILON);
+					if (!scene.IsOccluded(r))
+					{
+						float lightPDF = CalculateLightPDF(L, dist, make_float3(0, -1, 0));
+						float3 sampledBRDF = material.diffuse * INVPI;
+						E += T * (NdotL / lightPDF) * sampledBRDF * scene.lightColor;
+					}
+				}
+			}
+			else
+			{
+				float cos_o = dot(-L, make_float3(0, -1, 0));
+				float cos_i = dot(L, ray.N);
+
+				if ((cos_o <= 0) || (cos_i <= 0))
+				{
+					return make_float3(0);
+				}
+
 				Ray r(I + L * EPSILON, L, dist - 2 * EPSILON);
+
 				if (!scene.IsOccluded(r))
 				{
-					float lightPDF = CalculateLightPDF(L, dist, make_float3(0, -1, 0));
 					float3 sampledBRDF = material.diffuse * INVPI;
-					E += T * (NdotL / lightPDF) * sampledBRDF * scene.lightColor;
+					float solidAngle = (cos_o * Scene::LIGHTAREA) / (dist * dist);
+
+					E += T * sampledBRDF * 1 * Scene::lightColor * solidAngle * cos_i;
 				}
 			}
 
