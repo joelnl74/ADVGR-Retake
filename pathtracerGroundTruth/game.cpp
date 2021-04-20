@@ -120,7 +120,7 @@ float3 Game::SampleNEEShaded( Ray& ray )
 
 				if ((cos_o <= 0) || (cos_i <= 0))
 				{
-					return make_float3(0);
+					E += make_float3(0);
 				}
 
 				Ray r(I + L * EPSILON, L, dist - 2 * EPSILON);
