@@ -7,6 +7,10 @@
 namespace Tmpl8 {
 
     static std::vector<int> m_GroundTruth;
+    static std::random_device rd;
+    static std::default_random_engine eng(rd());
+
+    std::uniform_real_distribution<float> distr(0.0f, 1.0f);
 
 	class Utils {
     public:
@@ -112,6 +116,13 @@ namespace Tmpl8 {
             }
 
             return savedValues;
+        }
+
+        static float RandomNumber()
+        {       
+            float value = distr(eng);
+
+            return value;
         }
 
 

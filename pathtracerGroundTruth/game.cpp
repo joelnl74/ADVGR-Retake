@@ -94,42 +94,67 @@ float3 Game::SampleNEEShaded( Ray& ray )
 		}
 		else
 		{
+			// next event estimation
 			float3 L = scene.RandomPointOnLight() - I;
-			float dist = length( L );
+			float dist = length(L);
+			L = normalize(L);
 
-			L /= dist;
-			L = normalize( L );
-
-			float cos_o = dot(-L, make_float3(0, -1, 0));
-			float cos_i = dot(L, ray.N);
-
-			if ((cos_o <= 0) || (cos_i <= 0))
+			if (m_NEE)
 			{
-				return make_float3(0);
-			}
-
-			Ray r(I + L * EPSILON, L, dist - 2 * EPSILON);
-			
-			if (!scene.IsOccluded( r ))
-			{
-				float3 sampledBRDF = material.diffuse * INVPI;
-				float solidAngle = (cos_o * Scene::LIGHTAREA) / (dist * dist);
-
-				E += T * sampledBRDF * 1 * Scene::lightColor * solidAngle * cos_i;
+				float NdotL = dot(ray.N, L);
+				if (NdotL > 0)
+				{
+					Ray r(I + L * EPSILON, L, dist - 2 * EPSILON);
+					if (!scene.IsOccluded(r))
+					{
+						float lightPDF = CalculateLightPDF(L, dist, make_float3(0, -1, 0));
+						float3 sampledBRDF = material.diffuse * INVPI;
+						E += T * (NdotL / lightPDF) * sampledBRDF * scene.lightColor;
+					}
+				}
 			}
 			else
 			{
-				return make_float3(0);
+				float cos_o = dot(-L, make_float3(0, -1, 0));
+				float cos_i = dot(L, ray.N);
+
+				if ((cos_o <= 0) || (cos_i <= 0))
+				{
+					return make_float3(0);
+				}
+
+				Ray r(I + L * EPSILON, L, dist - 2 * EPSILON);
+
+				if (!scene.IsOccluded(r))
+				{
+					float3 sampledBRDF = material.diffuse * INVPI;
+					float solidAngle = (cos_o * Scene::LIGHTAREA) / (dist * dist);
+
+					E += T * sampledBRDF * 1 * Scene::lightColor * solidAngle * cos_i;
+				}
 			}
 
 			float p = PSurvice(material.diffuse);
-			float rng = ((double)rand() / (RAND_MAX)) + 1;
+			float rng = Utils::RandomNumber();
 
 			if (p < rng) {
 				break;
 			}
 
 			T *= 1 / p;
+
+			// sample random direction on hemisphere
+			float hemiPDF = 0;
+			float3 BRDF = SampleLambert(material.diffuse, ray.N, R, hemiPDF);
+			
+			if (BRDF.x == 0 && BRDF.y == 0 && BRDF.z == 0)
+			{
+				break;
+			}
+
+			T *= (dot(R, ray.N) / hemiPDF) * BRDF;
+			ray = Ray(I + R * EPSILON, R);
+			lastSpecular = false;
 		}
 	}
 
@@ -141,7 +166,7 @@ float3 Game::SampleNEEShaded( Ray& ray )
 // -----------------------------------------------------------
 void Game::Tick( float deltaTime )
 {
-	std::vector<int> valuess = Utils::LoadFromFile("GroundTruth.txt");
+	// std::vector<int> valuess = Utils::LoadFromFile("GroundTruth.txt");
 
 	// iterate over the pixels on the screen
 	const float focalPlane = -1.7f;
@@ -172,6 +197,9 @@ void Game::Tick( float deltaTime )
 		screen->Plot( x, y, (r << 16) + (g << 8) + b );
 	}
 
+	cout << samplesTaken << endl;
+
+	// Save ground truth image.
 	if (samplesTaken == 1024)
 	{
 		Utils::SaveToFile("GroundTruth.txt", values);
