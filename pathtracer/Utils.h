@@ -88,6 +88,22 @@ namespace Tmpl8 {
             return (float)value / 100;
         }
 
+        static float CalculateRMSEValueFromFile(const string& fileOne)
+        {
+            std::vector<int> estimation = LoadFromFile(fileOne);
+            std::vector<int> groundTruth = GetGroundTruth();
+
+            return rmsValue(estimation, groundTruth);
+        }
+
+        static float CalculateRMSEValueFromFile(const string& fileOne, const string &fileTwo)
+        {
+            std::vector<int> estimation = LoadFromFile(fileOne);
+            std::vector<int> groundTruth = LoadFromFile(fileTwo);
+
+            return rmsValue(estimation, groundTruth);
+        }
+
         static std::vector<int> LoadFromFile(const std::string& filePath)
         {
             std::vector<int> savedValues;
