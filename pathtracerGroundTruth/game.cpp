@@ -53,7 +53,7 @@ float3 Game::SampleNEEShaded( Ray& ray )
 	float3 T = make_float3( 1 ), E = make_float3( 0 );
 	bool lastSpecular = true;
 
-	while (true)
+	while(true)
 	{
 		// find nearest ray/scene intersection
 		if (scene.Intersect( ray ) == -1) 
@@ -120,7 +120,7 @@ float3 Game::SampleNEEShaded( Ray& ray )
 
 				if ((cos_o <= 0) || (cos_i <= 0))
 				{
-					return make_float3(0);
+					T += make_float3(0);
 				}
 
 				Ray r(I + L * EPSILON, L, dist - 2 * EPSILON);
@@ -202,7 +202,7 @@ void Game::Tick( float deltaTime )
 	// Save ground truth image.
 	if (samplesTaken == 1024)
 	{
-		Utils::SaveToFile("GroundTruth.txt", values);
+		Utils::SaveToFile("LightWithOutNEEGroundTruthEpsilon.txt", values);
 	}
 }
 

@@ -1,4 +1,5 @@
 #include "precomp.h"
+#include "Utils.h"
 
 // some helper functions
 
@@ -97,17 +98,19 @@ float3 Game::SampleNEEShaded( Ray& ray )
 			float3 L = scene.RandomPointOnLight() - I;
 			float dist = length( L );
 			L = normalize( L );
-			float NdotL = dot( ray.N, L );
+
+			float NdotL = dot(ray.N, L);
 			if (NdotL > 0)
 			{
-				Ray r( I + L * EPSILON, L, dist - 2 * EPSILON );
-				if (!scene.IsOccluded( r ))
+				Ray r(I + L * EPSILON, L, dist - 2 * EPSILON);
+				if (!scene.IsOccluded(r))
 				{
-					float lightPDF = CalculateLightPDF( L, dist, make_float3( 0, -1, 0 ) );
+					float lightPDF = CalculateLightPDF(L, dist, make_float3(0, -1, 0));
 					float3 sampledBRDF = material.diffuse * INVPI;
 					E += T * (NdotL / lightPDF) * sampledBRDF * scene.lightColor;
 				}
 			}
+
 			// sample random direction on hemisphere
 			float hemiPDF = 0;
 			float3 BRDF = SampleLambert( material.diffuse, ray.N, R, hemiPDF );
@@ -139,6 +142,7 @@ void Game::Tick( float deltaTime )
 		// intersect the ray with the scene
 		accumulator[x + y * SCRWIDTH] += SampleNEEShaded( r );
 	}
+
 	// visualize the accumulator
 	samplesTaken++;
 	float scale = 1.0f / samplesTaken;
@@ -162,9 +166,9 @@ void Game::Tick( float deltaTime )
 
 		rmsValues.push_back(rmsevalue);
 	}
+
 	if (samplesTaken == 1025)
 	{
-		Utils::SaveToFile("base.txt", rmsValues);
+		Utils::SaveToFile("imageData.txt", rmsValues);
 	}
-
 }

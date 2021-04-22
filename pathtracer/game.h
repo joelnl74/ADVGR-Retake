@@ -1,5 +1,4 @@
 #pragma once
-#include "Utils.h"
 namespace Tmpl8 {
 
 class Game

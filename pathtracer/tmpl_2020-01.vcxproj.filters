@@ -43,6 +43,7 @@
     <ClInclude Include="scene.h" />
     <ClInclude Include="ray.h" />
     <ClInclude Include="Utils.h" />
+    <ClInclude Include="BlueNoiseSampler.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="template code">
